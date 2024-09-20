@@ -94,11 +94,11 @@ def e_step(experiment_data: List[NDArray[np.int_]],
     :rtype: np.array of np.arrays of floats
     """
     # Initialize the expected counts object for each die
-    max_number_of_faces = max([len(die) for die in bag_of_dice.dice])
+#    max_number_of_faces = max([len(die) for die in bag_of_dice.dice])
     # Initialize expected_counts to zero. It is a list of lists. The number
     # of inner lists is equal to the number of dice and the length of each
     # inner list is the number of faces of the die with the most faces.
-    expected_counts = np.zeros((len(bag_of_dice), max_number_of_faces))
+#    expected_counts = np.zeros((len(bag_of_dice), max_number_of_faces))
 
     # Iterate over draws. For each draw, calculate the the posterior probability
     # that each die type was rolled on that draw by calling dice_posterior.
@@ -108,6 +108,60 @@ def e_step(experiment_data: List[NDArray[np.int_]],
     # counts for each type over all the draws.  
 
     # PUT YOUR CODE HERE, FOLLOWING THE DIRECTIONS ABOVE
+    expect_counts_d0_all = []
+    expect_counts_d1_all = []
+
+    # iterate over draws:
+    for i in range(0, len(experiment_data)):
+        
+        # 0) define variables
+        sample_draw = experiment_data[i]
+        die_type_counts = bag_of_dice.die_priors
+        dice = bag_of_dice.dice
+
+        # 1) calculate prior probabilities for each die
+        prior_die0 = die_type_counts[0]/sum(die_type_counts)
+        prior_die1 = die_type_counts[1]/sum(die_type_counts)
+
+        # 2.1) calculate likelihood for die0
+        die0_type_prob = dice[0]
+        lst0 = []
+        for j in range(0, len(die0_type_prob)):
+            lst0.append(die0_type_prob[j] ** sample_draw[j])
+            likelihood_die0 = np.prod(lst0)
+
+        # 2.2) calculate likelihood for die1
+        die1_type_prob = dice[1]
+        lst1 = []
+        for j in range(0, len(die1_type_prob)):
+            lst1.append(die1_type_prob[j] ** sample_draw[j])
+            likelihood_die1 = np.prod(lst1)
+            
+        # 3) calculate unnormilized posterior probabilities for each die
+        poster_die0_un = likelihood_die0 * prior_die0
+        poster_die1_un = likelihood_die1 * prior_die1
+
+        # 4) calculate normilized posterior probability for each die
+        poster_die0 = poster_die0_un/(poster_die0_un + poster_die1_un)
+        poster_die1 = poster_die1_un/(poster_die0_un + poster_die1_un)
+#---------------------------New code--------------------------------------------
+        # 5) calculate the expect counts for each die
+        expect_counts_d0 = []
+        expect_counts_d1 = []
+        for j in range(0, len(sample_draw)):
+            expect_counts_d0.append(poster_die0 * sample_draw[j])
+            expect_counts_d1.append(poster_die1 * sample_draw[j])
+
+        # 6) append the expected counts for this draw for each die
+        expect_counts_d0_all.append(expect_counts_d0) 
+        expect_counts_d1_all.append(expect_counts_d1)
+
+    # 7) count total expected counts for each die 
+    expect_counts_d0_t = np.sum(expect_counts_d0_all, axis=0)
+    expect_counts_d1_t = np.sum(expect_counts_d1_all, axis=0)
+
+    # 8) return the expected array
+    expected_counts = np.array([expect_counts_d0_t, expect_counts_d1_t])
 
     return expected_counts
 
