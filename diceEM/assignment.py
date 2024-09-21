@@ -161,6 +161,7 @@ def e_step(experiment_data: List[NDArray[np.int_]],
     expect_counts_d1_t = np.sum(expect_counts_d1_all, axis=0)
 ###
 ###
+###
     # 8) return the expected array
     expected_counts = np.array([expect_counts_d0_t, expect_counts_d1_t])
 
