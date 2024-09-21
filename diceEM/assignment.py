@@ -116,6 +116,7 @@ def e_step(experiment_data: List[NDArray[np.int_]],
     # iterate over draws:
     for i in range(0, len(experiment_data)):
         
+#----------Calculating posterior probabilities for each die---------------------        
         # 0) define variables
         sample_draw = experiment_data[i]
         die_type_counts = bag_of_dice.die_priors
@@ -146,7 +147,7 @@ def e_step(experiment_data: List[NDArray[np.int_]],
         # 4) calculate normilized posterior probability for each die
         poster_die0 = poster_die0_un/(poster_die0_un + poster_die1_un)
         poster_die1 = poster_die1_un/(poster_die0_un + poster_die1_un)
-        
+
 #---------------------------New code--------------------------------------------
         # 5) calculate the expect counts for each die
         expect_counts_d0 = []
